@@ -68,6 +68,18 @@ namespace PdfiumLight
             LoadDocument(document);
         }
 
+        public struct MySizeF
+        {
+            public float Width;
+            public float Height;
+        }
+
+        public MySizeF GetPageSizeF(int num)
+        {
+            var s = GetPageSize(num);
+            return new MySizeF() { Width = s.Width, Height = s.Height };
+        }
+
         /// <summary>
         /// This method returns the dimension of the pages in this document without loading them into memory first
         /// </summary>

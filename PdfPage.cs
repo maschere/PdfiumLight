@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Text;
 
 namespace PdfiumLight
@@ -220,6 +221,19 @@ namespace PdfiumLight
             else if (height != 0 && width == 0) width = (int)((float)height * (int)(Width / Height));
             else if (height == 0 && width == 0) throw new ArgumentException();
             return Render(width, height, 0, 0, width, height, 0, 0, rotate, flags);
+        }
+
+        public byte[] RenderToArray(ref int width, ref int height, PdfRotation rotate, PdfRenderFlags flags)
+        {
+            var img = Render(width, height, rotate, flags);
+            height = img.Height;
+            width = img.Width;
+            using (MemoryStream ms = new MemoryStream())
+            {
+                img.Save(ms, img.RawFormat);
+                return ms.ToArray();
+            }
+            
         }
 
         /// <summary>
@@ -498,6 +512,23 @@ namespace PdfiumLight
             );
 
         }
+
+        public struct MyRectF
+        {
+            public float Left;
+            public float Top;
+            public float Width;
+            public float Height;
+        }
+
+       
+
+        public MyRectF RectFFromPdf(PdfRectangle rect, int renderWidth, int renderHeight)
+        {
+            var r = this.RectangleFromPdf(rect.Bounds, renderWidth, renderHeight);
+            return new MyRectF() { Left = r.Left / (float)renderWidth, Top = r.Top / (float)renderHeight, Width = r.Width / (float)renderWidth, Height = r.Height / (float)renderHeight };
+        }
+
 
         private NativeMethods.FPDF FlagsToFPDFFlags(PdfRenderFlags flags)
         {
